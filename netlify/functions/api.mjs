@@ -190,6 +190,20 @@ function createHandler(db) {
     const p = parts.slice(1);
 
     if (method === "GET" && p.length === 1 && p[0] === "healthz") return { ok: true };
+    if (method === "GET" && p.length === 1 && p[0] === "diag") {
+      // HALAMAN DIAGNOSA SEMENTARA — hapus setelah semuanya berjalan
+      const out = {
+        fungsi: "hidup",
+        STAFF_PASSWORD: (process.env.STAFF_PASSWORD || "").length >= 8 ? "terisi" : "KOSONG atau kurang dari 8 karakter",
+      };
+      try { await db.query("SELECT 1 AS x"); out.database_terhubung = true; }
+      catch (e) { out.database_terhubung = false; out.galat_koneksi = String(e?.message || e).slice(0, 300); }
+      if (out.database_terhubung) {
+        try { await db.query("SELECT COUNT(*) AS n FROM warga"); out.tabel_ada = true; }
+        catch (e) { out.tabel_ada = false; out.galat_tabel = String(e?.message || e).slice(0, 300); }
+      }
+      return out;
+    }
 
     /* ---- publik: warga ---- */
     if (p[0] === "member" && p.length === 2 && ["start", "create-pin", "login"].includes(p[1]) && method === "POST") {
@@ -375,7 +389,7 @@ function createHandler(db) {
     } catch (e) {
       if (e instanceof ApiError) return json(e.status, { error: e.message });
       console.error("API error:", e);
-      return json(500, { error: "Terjadi kesalahan di server." });
+      return json(500, { error: "Terjadi kesalahan di server: " + String(e?.message || e).slice(0, 200) });
     }
   };
 }
