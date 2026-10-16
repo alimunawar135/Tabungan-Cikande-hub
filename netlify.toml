@@ -1,0 +1,28 @@
+[build]
+  publish = "public"
+
+[functions]
+  directory = "netlify/functions"
+
+[[redirects]]
+  from = "/petugas"
+  to = "/petugas.html"
+  status = 200
+
+[[redirects]]
+  from = "/petugas/"
+  to = "/petugas.html"
+  status = 200
+
+[[redirects]]
+  from = "/warga"
+  to = "/"
+  status = 301
+
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "no-referrer"
+    X-Frame-Options = "DENY"
+    Content-Security-Policy = "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com data:; img-src 'self' data:; connect-src 'self'; frame-ancestors 'none'; base-uri 'none'"
